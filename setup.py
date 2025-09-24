@@ -6,7 +6,8 @@ setup(
     description='STL Encoder (Signal Temporal Logic)', 
     author='Sara Candussio',  
     author_email='sara.candussio@phd.units.it',  
-    packages=find_packages(),  
+    packages=find_packages(where='src'),
+    package_dir={'': 'src'},  
     install_requires=[
         'torch>=1.8.0',  
         'numpy>=1.20.0',
