@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stlenc"
+version = "0.1"
+description = "STL Encoder (Signal Temporal Logic)"
+authors = [
+    { name = "Sara Candussio", email = "sara.candussio@phd.units.it" }
+]
+readme = "README.md"  # Add your README file here
+license = { file = "LICENSE" }  # Add your LICENSE file here
+dependencies = [
+    "torch>=1.8.0",
+    "numpy>=1.20.0",
+    "pandas>=1.1.0",
+    "matplotlib>=3.0",
+    "scikit-learn>=0.24.0",
+    "networkx>=2.5"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "flake8>=3.8"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/gaoithee/stlenc"  # Replace with your actual URL
+"Documentation" = "https://yourprojectdocs.example.com"
+"Source" = "https://github.com/gaoithee/stlenc"
+"Tracker" = "https://github.com/gaoithee/stlenc/issues"
+
+[project.classifiers]
+"Programming Language :: Python :: 3"
+"License :: OSI Approved :: MIT License"
+"Operating System :: OS Independent"
+
+[tool.setuptools.packages]
+find = {}
+
+[tool.setuptools.include_package_data]
+true = true
+
+[project.python]
+requires = ">=3.11"
