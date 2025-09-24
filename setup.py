@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='stl-encoder',  
+    name='stlenc',  
     version='0.1',  
     description='STL Encoder (Signal Temporal Logic)', 
     author='Sara Candussio',  
