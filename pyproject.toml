@@ -20,10 +20,15 @@ dependencies = [
     "networkx>=2.5"
 ]
 
-[project.optional-dependencies]
 dev = [
     "pytest>=6.0",
     "flake8>=3.8"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
 ]
 
 [project.urls]
@@ -31,13 +36,6 @@ dev = [
 "Documentation" = "https://yourprojectdocs.example.com"
 "Source" = "https://github.com/gaoithee/stlenc"
 "Tracker" = "https://github.com/gaoithee/stlenc/issues"
-
-[project.classifiers]
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent"
-]
 
 [tool.setuptools.packages]
 find = {}
