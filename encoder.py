@@ -6,12 +6,12 @@ import numpy as np
 import pandas as pd
 from typing import List, Optional, Tuple, Union
 import matplotlib.pyplot as plt
-from phis_generator import StlGenerator
-from traj_measure import BaseMeasure
-from orig_utils import from_string_to_formula, load_pickle, dump_pickle
-from kernel import StlKernel
+from stlenc.phis_generator import StlGenerator
+from stlenc.traj_measure import BaseMeasure
+from stlenc.orig_utils import from_string_to_formula, load_pickle, dump_pickle
+from stlenc.kernel import StlKernel
 from sklearn.decomposition import KernelPCA
-from anchor_set_generation import anchorGeneration
+from stlenc.anchor_set_generation import anchorGeneration
 import csv
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler

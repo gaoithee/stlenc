@@ -1,0 +1,26 @@
+Metadata-Version: 2.4
+Name: stlenc
+Version: 0.1
+Summary: STL Encoder (Signal Temporal Logic)
+Author: Sara Candussio
+Author-email: sara.candussio@phd.units.it
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.11
+Requires-Dist: torch>=1.8.0
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: pandas>=1.1.0
+Requires-Dist: matplotlib>=3.0
+Requires-Dist: scikit-learn>=0.24.0
+Requires-Dist: networkx>=2.5
+Provides-Extra: dev
+Requires-Dist: pytest>=6.0; extra == "dev"
+Requires-Dist: flake8>=3.8; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

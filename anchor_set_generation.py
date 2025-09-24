@@ -4,10 +4,10 @@ from torch.nn.functional import normalize
 import copy
 import numpy as np
 
-from phis_generator import StlGenerator
-from traj_measure import BaseMeasure
-from orig_utils import from_string_to_formula, load_pickle, dump_pickle
-from kernel import StlKernel
+from stlenc.phis_generator import StlGenerator
+from stlenc.traj_measure import BaseMeasure
+from stlenc.orig_utils import from_string_to_formula, load_pickle, dump_pickle
+from stlenc.kernel import StlKernel
 
 
 def anchorGeneration(diff_init = False, # to control whether we want formulae to be semantically different by construction

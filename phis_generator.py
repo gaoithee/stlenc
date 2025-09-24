@@ -1,7 +1,7 @@
-import stl
+import stlenc.stl as stl
 import numpy.random as rnd
 from typing import Union
-from stl import Node
+from stlenc.stl import Node
 
 
 class StlGenerator:

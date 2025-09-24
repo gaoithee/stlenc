@@ -1,5 +1,5 @@
 # For custom type-hints
-from custom_typing import realnum
+from stlenc.custom_typing import realnum
 
 # For tensor functions
 import torch

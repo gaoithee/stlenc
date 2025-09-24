@@ -2,7 +2,7 @@ import copy
 import pickle
 import os
 from collections import deque
-from stl import *
+from stlenc.stl import *
 import networkx as nx
 
 ############################################################################################################################
