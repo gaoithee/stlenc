@@ -1,7 +1,7 @@
-import stlenc.stl as stl
+from stl import *
 import numpy.random as rnd
 from typing import Union
-from stlenc.stl import Node
+# from .stl import Node
 
 
 class StlGenerator:
@@ -101,32 +101,32 @@ class StlGenerator:
         while True:
             if nodetype == "not":
                 n = self._sample_node(nvars)
-                node = stl.Not(n)
+                node = Not(n)
             elif nodetype == "and":
                 n1 = self._sample_node(nvars)
                 n2 = self._sample_node(nvars)
-                node = stl.And(n1, n2)
+                node = And(n1, n2)
             elif nodetype == "or":
                 n1 = self._sample_node(nvars)
                 n2 = self._sample_node(nvars)
-                node = stl.Or(n1, n2)
+                node = Or(n1, n2)
             elif nodetype == "always":
                 n = self._sample_node(nvars)
                 unbound, right_unbound, left_time_bound, right_time_bound = self._get_temporal_parameters()
-                node = stl.Globally(
+                node = Globally(
                     n, unbound, right_unbound, left_time_bound, right_time_bound, self.adaptive_unbound_temporal_ops
                 )
             elif nodetype == "eventually":
                 n = self._sample_node(nvars)
                 unbound, right_unbound, left_time_bound, right_time_bound = self._get_temporal_parameters()
-                node = stl.Eventually(
+                node = Eventually(
                     n, unbound, right_unbound, left_time_bound, right_time_bound, self.adaptive_unbound_temporal_ops
                 )
             elif nodetype == "until":
                 n1 = self._sample_node(nvars)
                 n2 = self._sample_node(nvars)
                 unbound, right_unbound, left_time_bound, right_time_bound = self._get_temporal_parameters()
-                node = stl.Until(
+                node = Until(
                     n1, n2, unbound, right_unbound, left_time_bound, right_time_bound
                 )
 
@@ -137,7 +137,7 @@ class StlGenerator:
         if rnd.rand() < self.leaf_prob:
             # sample a leaf
             var, thr, lte = self._get_atom(nvars)
-            return stl.Atom(var, thr, lte)
+            return Atom(var, thr, lte)
         else:
             return self._sample_internal_node(nvars)
 
