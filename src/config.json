@@ -1,0 +1,26 @@
+{
+  "architectures": [
+    "STLEncoderModel"
+  ],
+  "auto_map": {
+    "AutoConfig": "configuration_stlenc.STLEncoderConfig",
+    "AutoModel": "modeling_stlenc.STLEncoderModel",
+    "AutoTokenizer": [
+      "tokenizer_stlenc.STLTokenizer",
+      null
+    ]
+  },
+  "bos_token_id": 2,
+  "dtype": "float32",
+  "embedding_dim_target": 1024,
+  "eos_token_id": 3,
+  "hidden_size": 1024,
+  "intermediate_size": 4096,
+  "max_position_embeddings": 512,
+  "model_type": "stl_encoder",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 12,
+  "pad_token_id": 1,
+  "transformers_version": "4.57.3",
+  "vocab_size": 35
+}
