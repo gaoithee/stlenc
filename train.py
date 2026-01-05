@@ -1,33 +1,32 @@
 import os
 import copy
-import pickle
 import torch
 import numpy as np
 import wandb
 import torch.nn.functional as F
 from collections import deque
-from typing import List, Optional, Tuple, Union, Dict
+from typing import List, Optional, Tuple, Union, Dict, Any
 from torch import Tensor
 from datasets import load_dataset
 from transformers import (
-    AutoConfig, 
-    AutoModel, 
-    AutoTokenizer, 
-    Trainer, 
-    TrainingArguments, 
+    AutoConfig,  
+    AutoModel,   
+    AutoTokenizer,   
+    Trainer,   
+    TrainingArguments,   
     DataCollatorWithPadding
 )
 
 # --- CONFIGURAZIONE ---
 REALNUM = Union[float, int]
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-VARN = 3  
+VARN = 3    
 POINTS = 100
-SAMPLES_FOR_KERNEL = 1000 
-TEMPERATURE = 0.07 # Corretto da 0.00 a 0.07 per stabilità numerica
+SAMPLES_FOR_KERNEL = 1000   
+TEMPERATURE = 0.4  
 
 # ==========================================
-# 1. CODICE LOGICO STL (ORIGINALE + FIX DIMENSIONI)
+# 1. CODICE LOGICO STL (ARCHITETTURA NODI)
 # ==========================================
 
 def eventually(x: Tensor, time_span: int) -> Tensor:
@@ -48,7 +47,6 @@ class Node:
 
 class Atom(Node):
     def __init__(self, var_index: int, threshold: REALNUM, lte: bool = False) -> None:
-        super().__init__()
         self.var_index, self.threshold, self.lte = var_index, threshold, lte
     def _boolean(self, x: Tensor) -> Tensor:
         xj = x[:, self.var_index, :].view(x.size(0), 1, -1)
@@ -60,14 +58,12 @@ class Atom(Node):
 
 class Not(Node):
     def __init__(self, child: Node) -> None:
-        super().__init__()
         self.child = child
     def _boolean(self, x: Tensor) -> Tensor: return ~self.child._boolean(x)
     def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor: return -self.child._quantitative(x, normalize)
 
 class And(Node):
     def __init__(self, left_child: Node, right_child: Node) -> None:
-        super().__init__()
         self.left_child, self.right_child = left_child, right_child
     def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
         z1, z2 = self.left_child._quantitative(x, normalize), self.right_child._quantitative(x, normalize)
@@ -76,7 +72,6 @@ class And(Node):
 
 class Or(Node):
     def __init__(self, left_child: Node, right_child: Node) -> None:
-        super().__init__()
         self.left_child, self.right_child = left_child, right_child
     def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
         z1, z2 = self.left_child._quantitative(x, normalize), self.right_child._quantitative(x, normalize)
@@ -85,7 +80,6 @@ class Or(Node):
 
 class Globally(Node):
     def __init__(self, child, unbound=False, right_unbound=False, left_time_bound=0, right_time_bound=1, adapt_unbound=True):
-        super().__init__()
         self.child, self.unbound, self.right_unbound = child, unbound, right_unbound
         self.left_time_bound, self.right_time_bound, self.adapt_unbound = left_time_bound, right_time_bound + 1, adapt_unbound
     def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
@@ -97,7 +91,6 @@ class Globally(Node):
 
 class Eventually(Node):
     def __init__(self, child, unbound=False, right_unbound=False, left_time_bound=0, right_time_bound=1, adapt_unbound=True):
-        super().__init__()
         self.child, self.unbound, self.right_unbound = child, unbound, right_unbound
         self.left_time_bound, self.right_time_bound, self.adapt_unbound = left_time_bound, right_time_bound + 1, adapt_unbound
     def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
@@ -109,7 +102,6 @@ class Eventually(Node):
 
 class Until(Node):
     def __init__(self, left, right, unbound=False, right_unbound=False, left_time_bound=0, right_time_bound=1):
-        super().__init__()
         self.left_child, self.right_child, self.unbound, self.right_unbound = left, right, unbound, right_unbound
         self.left_time_bound, self.right_time_bound = left_time_bound, right_time_bound + 1
     def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
@@ -122,7 +114,7 @@ class Until(Node):
         return self.right_child._quantitative(x[:, :, self.left_time_bound:], normalize)
 
 # ==========================================
-# 2. PARSER ORIGINALE
+# 2. PARSER E MISURA
 # ==========================================
 
 def set_time_thresholds(st):
@@ -176,10 +168,6 @@ def from_string_to_formula(st):
         un, run, l, r = set_time_thresholds(op_str)
         return Until(l_phi, r_phi, un, run, l, r)
 
-# ==========================================
-# 3. MISURA E KERNEL
-# ==========================================
-
 class BaseMeasure:
     def __init__(self, mu0=0.0, sigma0=1.0, mu1=0.0, sigma1=1.0, q=0.1, q0=0.5, device="cpu"):
         self.mu0, self.sigma0, self.mu1, self.sigma1, self.q, self.q0, self.device = mu0, sigma0, mu1, sigma1, q, q0, device
@@ -206,12 +194,18 @@ class StlKernel:
         return (K_exp, rhos, selfk, None) if return_robustness else K_exp
 
 # ==========================================
-# 4. TRAINING COMPONENTS
+# 3. COMPONENTI TRAINER E COLLATOR
 # ==========================================
 
 class STLDataCollator(DataCollatorWithPadding):
     def __call__(self, features):
         formula_strs = [f.pop("formula_str") for f in features]
+        
+        for feature in features:
+            keys_to_del = [k for k, v in feature.items() if isinstance(v, str)]
+            for k in keys_to_del:
+                del feature[k]
+
         batch = super().__call__(features)
         batch["formula_str"] = formula_strs
         return batch
@@ -225,86 +219,100 @@ class STLEncKernelTrainer(Trainer):
         formula_strs = inputs.pop("formula_str")
         if self.stl_kernel.signals.device != model.device:
             self.stl_kernel.signals = self.stl_kernel.signals.to(model.device)
-        
+            
         with torch.no_grad():
             phi_objs = [self.parse_fn(s) for s in formula_strs]
             K_target = self.stl_kernel.compute_bag(phi_objs, return_robustness=True)[0]
-        
+            
         outputs = model(**inputs)
         emb = outputs.last_hidden_state[:, 0, :] if hasattr(outputs, "last_hidden_state") else (outputs[:, 0, :] if outputs.dim() == 3 else outputs)
         z = F.normalize(emb, p=2, dim=1)
         
-        # Similarità del modello
-        model_sim = torch.matmul(z, z.T)
-        logits = model_sim / TEMPERATURE
+        logits = torch.matmul(z, z.T) / TEMPERATURE 
         
+        # LogSumExp stability
+        logits_max, _ = torch.max(logits, dim=1, keepdim=True)
+        logits = logits - logits_max.detach()
         exp_logits = torch.exp(logits)
-        # Sostituiamo i negativi standard con quelli pesati dal kernel
-        weighted_exp_sum = torch.sum(exp_logits * (1.0 - K_target), dim=1)
-        loss = -torch.log(exp_logits.diag() / (weighted_exp_sum + 1e-8)).mean()
         
-        # --- WANDB CUSTOM LOGGING ---
-        if self.state.global_step % self.args.logging_steps == 0:
+        mask = torch.eye(logits.shape[0], device=logits.device)
+        numerator = exp_logits.diag()
+        weighted_negatives = torch.sum(exp_logits * (1.0 - K_target) * (1.0 - mask), dim=1)
+        denominator = numerator + weighted_negatives
+        
+        loss = -torch.log(numerator / (denominator + 1e-8)).mean()
+        
+        if model.training and self.state.global_step % self.args.logging_steps == 0:
             with torch.no_grad():
-                # Calcoliamo quanto la similarità neurale è allineata a quella logica
-                alignment_error = torch.abs(model_sim - K_target).mean()
                 wandb.log({
                     "train/loss": loss.item(),
-                    "train/kernel_alignment_error": alignment_error.item(),
-                    "train/avg_kernel_similarity": K_target.mean().item(),
-                    "train/avg_model_similarity": model_sim.mean().item()
+                    "train/avg_kernel_sim": K_target.mean().item()
                 }, step=self.state.global_step)
-
         return (loss, emb) if return_outputs else loss
 
+    def prediction_step(self, model, inputs, prediction_loss_only, ignore_keys=None):
+        inputs = self._prepare_inputs(inputs)
+        with torch.no_grad():
+            loss = self.compute_loss(model, inputs, return_outputs=False)
+        return (loss, None, None)
+
 # ==========================================
-# 5. EXECUTION
+# 4. ESECUZIONE
 # ==========================================
 
 if __name__ == "__main__":
-    # Inizializzazione WandB
-    wandb.init(
-        project="stlenc-distillation",
-        name="kernel-weighted-infonce",
-        config={
-            "temperature": TEMPERATURE,
-            "kernel_samples": SAMPLES_FOR_KERNEL,
-            "varn": VARN,
-            "learning_rate": 5e-5
-        }
-    )
+    wandb.init(project="stlenc-distillation", name="kernel-weighted-infonce")
 
-    model_id, new_repo = "saracandu/stlenc", "saracandu/stlenc-kernel-distilled"
+    model_id, new_repo = "saracandu/stlenc-distilled", "saracandu/stlenc-distilled"
     config = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     model = AutoModel.from_config(config, trust_remote_code=True)
     
-    ds = load_dataset("saracandu/stl_formulae", split="train")
-    tokenized_ds = ds.map(lambda x: {**tokenizer(x["formula"], truncation=True, max_length=128, padding="max_length"), "formula_str": x["formula"]}, batched=True)
+    ds = load_dataset("saracandu/stl_formulae_variants")
+    
+    tokenized_ds = ds.map(lambda x: {
+        **tokenizer(x["formula_variant"], truncation=True, max_length=512, padding="max_length"),  
+        "formula_str": x["formula_variant"]
+    }, batched=True)
+    
     tokenized_ds.set_format(type=None, columns=["input_ids", "attention_mask", "formula_str"])
     
+    train_dataset = tokenized_ds["train"].shuffle(seed=42)
+    # eval_dataset = tokenized_ds["test"].shuffle(seed=42)
+    eval_dataset = tokenized_ds["test"].shuffle(seed=42).select(range(3000))    
     mu = BaseMeasure(device=DEVICE)
     stl_kernel = StlKernel(measure=mu, samples=SAMPLES_FOR_KERNEL, varn=VARN)
     
+    training_args = TrainingArguments(
+        output_dir="./results", 
+        per_device_train_batch_size=128, 
+        per_device_eval_batch_size=128,
+        gradient_accumulation_steps=1, # prova a salire a 4 e vedi com'è (opzionale)
+        num_train_epochs=5, 
+        learning_rate=1e-5, 
+        weight_decay=0.01, 
+        remove_unused_columns=False,
+        push_to_hub=True, 
+        hub_model_id=new_repo, 
+        report_to="wandb", 
+        logging_steps=100,
+        eval_strategy="steps", 
+        eval_steps=500, 
+        save_strategy="steps", 
+        save_steps=500,
+        load_best_model_at_end=True, 
+        metric_for_best_model="eval_loss", 
+        group_by_length=False
+    )
     
-
     trainer = STLEncKernelTrainer(
-        model=model,
-        args=TrainingArguments(
-            output_dir="./results", 
-            per_device_train_batch_size=32, 
-            num_train_epochs=10, 
-            learning_rate=5e-5, 
-            remove_unused_columns=False, 
-            push_to_hub=True, 
-            hub_model_id=new_repo, 
-            report_to="wandb", # Abilita l'integrazione nativa
-            logging_steps=10
-        ),
-        train_dataset=tokenized_ds, 
+        model=model, 
+        args=training_args, 
+        train_dataset=train_dataset, 
+        eval_dataset=eval_dataset,
         stl_kernel=stl_kernel, 
         parse_fn=from_string_to_formula, 
-        tokenizer=tokenizer, 
+        tokenizer=tokenizer,
         data_collator=STLDataCollator(tokenizer=tokenizer)
     )
     
