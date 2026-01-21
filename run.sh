@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --no-requeue
-#SBATCH --job-name="train"
+#SBATCH --job-name="3train"
 #SBATCH --partition=lovelace
 #SBATCH --gres=gpu:a100
 #SBATCH --nodes=1
@@ -28,4 +28,4 @@ export TOKENIZERS_PARALLELISM=false
 # ------------------------
 # Run generator
 # ------------------------
-python /u/scandussio/stlenc/train.py 
+python /u/scandussio/stlenc/train-v3.py 

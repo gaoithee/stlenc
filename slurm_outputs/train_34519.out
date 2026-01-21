@@ -1,0 +1,42 @@
+---------------------------------------------
+SLURM job ID:        34519
+SLURM job node list: lovelace-02
+DATE:                Fri Jan  9 11:52:28 AM CET 2026
+---------------------------------------------
+
+CommandNotFoundError: Your shell has not been properly configured to use 'conda activate'.
+To initialize your shell, run
+
+    $ conda init <SHELL_NAME>
+
+Currently supported shells are:
+  - bash
+  - fish
+  - tcsh
+  - xonsh
+  - zsh
+  - powershell
+
+See 'conda init --help' for more information and options.
+
+IMPORTANT: You may need to close and restart your shell after running 'conda init'.
+
+
+wandb: Currently logged in as: saracandussio (saracandussio-universit-degli-studi-di-trieste) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run n63jzjbi
+wandb: Tracking run with wandb version 0.23.1
+wandb: Run data is saved locally in /u/scandussio/stlenc/wandb/run-20260109_115243-n63jzjbi
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run train-v3-fixed-kernel-hard-mining
+wandb: ⭐️ View project at https://wandb.ai/saracandussio-universit-degli-studi-di-trieste/stlenc-distillation
+wandb: 🚀 View run at https://wandb.ai/saracandussio-universit-degli-studi-di-trieste/stlenc-distillation/runs/n63jzjbi
+A new version of the following files was downloaded from https://huggingface.co/saracandu/stlenc-distilled-v2:
+- configuration_stlenc.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+A new version of the following files was downloaded from https://huggingface.co/saracandu/stlenc-distilled-v2:
+- tokenizer_stlenc.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+A new version of the following files was downloaded from https://huggingface.co/saracandu/stlenc-distilled-v2:
+- modeling_stlenc.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+Downloading data:   0%|          | 0/23 [00:00<?, ?files/s]Downloading data:   4%|▍         | 1/23 [00:04<01:45,  4.81s/files]Downloading data:   9%|▊         | 2/23 [00:14<02:38,  7.53s/files]Downloading data:  13%|█▎        | 3/23 [00:18<01:56,  5.84s/files]Downloading data:  17%|█▋        | 4/23 [00:21<01:36,  5.08s/files]Downloading data:  22%|██▏       | 5/23 [00:26<01:25,  4.74s/files]Downloading data:  26%|██▌       | 6/23 [00:30<01:17,  4.59s/files]Downloading data:  30%|███       | 7/23 [00:34<01:09,  4.34s/files]Downloading data:  35%|███▍      | 8/23 [00:38<01:03,  4.22s/files]Downloading data:  39%|███▉      | 9/23 [00:42<00:57,  4.10s/files]slurmstepd: error: *** JOB 34519 ON lovelace-02 CANCELLED AT 2026-01-09T11:53:39 ***

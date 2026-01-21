@@ -6,6 +6,8 @@ python/
 
 # Training
 results/
+results-v2/
+results-v3/
 stlenc-training/
 final-model/
 pushed-model/
