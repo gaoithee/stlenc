@@ -1,0 +1,370 @@
+# 19/02/26 - 22:03
+import os
+import copy
+import torch
+import numpy as np
+import wandb
+import tempfile
+import torch.nn.functional as F
+from datetime import datetime
+from collections import deque
+from typing import List, Optional, Tuple, Union, Dict, Any
+from torch import Tensor
+from datasets import load_dataset
+from transformers import (
+    AutoConfig,    
+    AutoModel,     
+    AutoTokenizer,     
+    Trainer,     
+    TrainingArguments,     
+    DataCollatorWithPadding
+)
+import multiprocessing
+
+# Calcola quanti core usare (lasciandone uno libero per il sistema)
+num_cores = max(1, multiprocessing.cpu_count() - 1)
+
+# --- CONFIGURAZIONE PATH E AMBIENTE ---
+BASE_DIR = "/share/ai-lab/scandussio/stlenc_arch_cls"
+HF_CACHE = os.path.join(BASE_DIR, "hf_cache")
+WANDB_DIR = os.path.join(BASE_DIR, "wandb")
+TMP_DIR = os.path.join(BASE_DIR, "tmp")
+
+for d in [HF_CACHE, WANDB_DIR, TMP_DIR]:
+    os.makedirs(d, exist_ok=True)
+
+os.environ["HF_HOME"] = HF_CACHE
+os.environ["HF_DATASETS_CACHE"] = HF_CACHE
+os.environ["WANDB_DIR"] = WANDB_DIR
+os.environ["TMPDIR"] = TMP_DIR
+tempfile.tempdir = TMP_DIR
+
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+VARN = 3       
+POINTS = 1000
+SAMPLES_FOR_KERNEL = 1000       
+MODEL_ID = "saracandu/stlenc-arch-cls"  
+
+# ==========================================
+# 1. LOGICA STL (Invariata)
+# ==========================================
+def eventually(x: Tensor, time_span: int) -> Tensor:
+    return F.max_pool1d(x, kernel_size=time_span, stride=1)
+
+class Node:
+    def boolean(self, x: Tensor, evaluate_at_all_times: bool = False) -> Tensor:
+        z: Tensor = self._boolean(x)
+        return z if evaluate_at_all_times else self._extract_semantics_at_time_zero(z)
+    def quantitative(self, x: Tensor, normalize: bool = False, evaluate_at_all_times: bool = False) -> Tensor:
+        z: Tensor = self._quantitative(x, normalize)
+        return z if evaluate_at_all_times else self._extract_semantics_at_time_zero(z)
+    @staticmethod
+    def _extract_semantics_at_time_zero(x: Tensor) -> Tensor:
+        return torch.reshape(x[:, 0, 0], (-1,))
+
+class Atom(Node):
+    def __init__(self, var_index: int, threshold: Union[float, int], lte: bool = False) -> None:
+        self.var_index, self.threshold, self.lte = var_index, threshold, lte
+    def _boolean(self, x: Tensor) -> Tensor:
+        xj = x[:, self.var_index, :].view(x.size(0), 1, -1)
+        return torch.le(xj, self.threshold) if self.lte else torch.ge(xj, self.threshold)
+    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+        xj = x[:, self.var_index, :].view(x.size(0), 1, -1)
+        z = -xj + self.threshold if self.lte else xj - self.threshold
+        return torch.tanh(z) if normalize else z
+
+class Not(Node):
+    def __init__(self, child: Node) -> None: self.child = child
+    def _boolean(self, x: Tensor) -> Tensor: return ~self.child._boolean(x)
+    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor: return -self.child._quantitative(x, normalize)
+
+class And(Node):
+    def __init__(self, left_child: Node, right_child: Node) -> None:
+        self.left_child, self.right_child = left_child, right_child
+    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+        z1, z2 = self.left_child._quantitative(x, normalize), self.right_child._quantitative(x, normalize)
+        size = min(z1.size(2), z2.size(2))
+        return torch.min(z1[:, :, :size], z2[:, :, :size])
+
+class Or(Node):
+    def __init__(self, left_child: Node, right_child: Node) -> None:
+        self.left_child, self.right_child = left_child, right_child
+    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+        z1, z2 = self.left_child._quantitative(x, normalize), self.right_child._quantitative(x, normalize)
+        size = min(z1.size(2), z2.size(2))
+        return torch.max(z1[:, :, :size], z2[:, :, :size])
+
+class Globally(Node):
+    def __init__(self, child, unbound=False, right_unbound=False, left_time_bound=0, right_time_bound=1, adapt_unbound=True):
+        self.child, self.unbound, self.right_unbound = child, unbound, right_unbound
+        self.left_time_bound, self.right_time_bound, self.adapt_unbound = left_time_bound, right_time_bound + 1, adapt_unbound
+    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+        z1 = self.child._quantitative(x[:, :, self.left_time_bound:], normalize)
+        if self.unbound or self.right_unbound:
+            z = torch.cummin(torch.flip(z1, [2]), dim=2)[0] if self.adapt_unbound else torch.min(z1, 2, keepdim=True)[0]
+            return torch.flip(z, [2]) if self.adapt_unbound else z
+        return -eventually(-z1, self.right_time_bound - self.left_time_bound)
+
+class Eventually(Node):
+    def __init__(self, child, unbound=False, right_unbound=False, left_time_bound=0, right_time_bound=1, adapt_unbound=True):
+        self.child, self.unbound, self.right_unbound = child, unbound, right_unbound
+        self.left_time_bound, self.right_time_bound, self.adapt_unbound = left_time_bound, right_time_bound + 1, adapt_unbound
+    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+        z1 = self.child._quantitative(x[:, :, self.left_time_bound:], normalize)
+        if self.unbound or self.right_unbound:
+            z = torch.cummax(torch.flip(z1, [2]), dim=2)[0] if self.adapt_unbound else torch.max(z1, 2, keepdim=True)[0]
+            return torch.flip(z, [2]) if self.adapt_unbound else z
+        return eventually(z1, self.right_time_bound - self.left_time_bound)
+
+class Until(Node):
+    def __init__(self, left, right, unbound=False, right_unbound=False, left_time_bound=0, right_time_bound=1):
+        self.left_child, self.right_child, self.unbound, self.right_unbound = left, right, unbound, right_unbound
+        self.left_time_bound, self.right_time_bound = left_time_bound, right_time_bound + 1
+    def _quantitative(self, x: Tensor, normalize: bool = False) -> Tensor:
+        z1, z2 = self.left_child._quantitative(x, normalize), self.right_child._quantitative(x, normalize)
+        size = min(z1.size(2), z2.size(2))
+        z1, z2 = z1[:, :, :size], z2[:, :, :size]
+        if self.unbound:
+            return torch.cat([torch.max(torch.min(torch.cat([torch.cummin(z1[:, :, t:].unsqueeze(-1), dim=2)[0], z2[:, :, t:].unsqueeze(-1)], dim=-1), dim=-1)[0], dim=2, keepdim=True)[0] for t in range(size)], dim=2)
+        return self.right_child._quantitative(x[:, :, self.left_time_bound:], normalize)
+
+# ==========================================
+# 2. PARSER E MISURA
+# ==========================================
+def set_time_thresholds(st):
+    unbound, right_unbound = [True, False]
+    l, r = [0, 0]
+    if st[-1] == ']':
+        unbound = False
+        time_thresholds = st[st.index('[')+1:-1].split(",")
+        l = int(time_thresholds[0])
+        if time_thresholds[1] == 'inf': right_unbound = True
+        else: r = int(time_thresholds[1]) - 1
+    return unbound, right_unbound, l, r
+
+def from_string_to_formula(st):
+    root_arity = 2 if st.startswith('(') else 1
+    st_split = st.split()
+    if root_arity <= 1:
+        root_op_str = copy.deepcopy(st_split[0])
+        if root_op_str.startswith('x'):
+            return Atom(var_index=int(st_split[0][2]), lte=(st_split[1] == '<='), threshold=float(st_split[2]))
+        current_st = copy.deepcopy(st_split[2:-1])
+        if root_op_str == 'not': return Not(child=from_string_to_formula(' '.join(current_st)))
+        un, run, l, r = set_time_thresholds(root_op_str)
+        if root_op_str.startswith('eventually'): return Eventually(from_string_to_formula(' '.join(current_st)), un, run, l, r)
+        return Globally(from_string_to_formula(' '.join(current_st)), un, run, l, r)
+    else:
+        current_st = copy.deepcopy(st_split[1:-1])
+        if '(' in current_st:
+            par_queue, par_idx_list = deque(), []
+            for i, sub in enumerate(current_st):
+                if sub == '(': par_queue.append(i)
+                elif sub == ')': par_idx_list.append(tuple([par_queue.pop(), i]))
+            children_range = []
+            for begin, end in sorted(par_idx_list):
+                if children_range and children_range[-1][1] >= begin - 1: children_range[-1][1] = max(children_range[-1][1], end)
+                else: children_range.append([begin, end])
+            if len(children_range) == 1:
+                var_child_idx = 1 if children_range[0][0] <= 1 else 0
+                if children_range[0][0] != 0 and current_st[children_range[0][0]-1][0:2] in ['no', 'ev', 'al']: children_range[0][0] -= 1
+                l_str = current_st[:3] if var_child_idx == 0 else current_st[children_range[0][0]:children_range[0][1]+1]
+                r_str = current_st[-3:] if var_child_idx == 1 else current_st[children_range[0][0]:children_range[0][1]+1]
+                op_str = current_st[children_range[0][1]+1] if var_child_idx == 1 else current_st[children_range[0][0]-1]
+            else:
+                if children_range[0][0] != 0 and current_st[children_range[0][0]-1][0:2] in ['no', 'ev', 'al']: children_range[0][0] -= 1
+                if current_st[children_range[1][0]-1][0:2] in ['no', 'ev', 'al']: children_range[1][0] -= 1
+                op_str, l_str, r_str = current_st[children_range[0][1]+1], current_st[children_range[0][0]:children_range[0][1]+1], current_st[children_range[1][0]:children_range[1][1]+1]
+        else: l_str, r_str, op_str = current_st[:3], current_st[-3:], current_st[3]
+        l_phi, r_phi = from_string_to_formula(' '.join(l_str)), from_string_to_formula(' '.join(r_str))
+        if op_str == 'and': return And(l_phi, r_phi)
+        if op_str == 'or': return Or(l_phi, r_phi)
+        un, run, l, r = set_time_thresholds(op_str)
+        return Until(l_phi, r_phi, un, run, l, r)
+
+class BaseMeasure:
+    def __init__(self, mu0=0.0, sigma0=1.0, mu1=0.0, sigma1=1.0, q=0.1, q0=0.5, device="cpu"):
+        self.mu0, self.sigma0, self.mu1, self.sigma1, self.q, self.q0, self.device = mu0, sigma0, mu1, sigma1, q, q0, device
+    def sample(self, samples=1000, varn=3, points=100):
+        signal = torch.rand(samples, varn, points, device=self.device)
+        signal[:, :, 0], signal[:, :, -1] = 0.0, 1.0
+        signal, _ = torch.sort(signal, 2)
+        signal[:, :, 1:] = signal[:, :, 1:] - signal[:, :, :-1]
+        signal[:, :, 0] = self.mu0 + self.sigma0 * torch.randn(signal[:, :, 0].size(), device=self.device)
+        derivs = torch.cumprod(2 * torch.bernoulli((1-self.q)*torch.ones(samples, varn, points, device=self.device)) - 1, 2)
+        derivs[:, :, 0] = 2 * torch.bernoulli(torch.full((samples, varn), self.q0, device=self.device)) - 1
+        signal = torch.cumsum(signal * derivs * torch.pow(self.mu1 + self.sigma1 * torch.randn(samples, varn, 1, device=self.device), 2), 2)
+        return signal
+
+class StlKernel:
+    def __init__(self, measure, sigma2=0.2, samples=1000, varn=3):
+        self.measure = measure
+        self.sigma2, self.samples, self.varn = sigma2, samples, varn
+        self.signals = measure.sample(samples=samples, varn=varn, points=POINTS)
+    def compute_bag(self, phis, return_robustness=True):
+        rhos = torch.stack([p.quantitative(self.signals) for p in phis])
+        selfk = torch.sum(rhos**2, dim=1, keepdim=True) / self.samples
+        K = torch.matmul(rhos, rhos.T) / (self.samples * torch.sqrt(selfk * selfk.T) + 1e-8)
+        K_exp = torch.exp(-(2.0 - 2 * K) / (2 * self.sigma2))
+        return (K_exp, rhos, selfk, None) if return_robustness else K_exp
+
+# ==========================================
+# 3. TRAINER E COLLATOR
+# ==========================================
+class STLDataCollator(DataCollatorWithPadding):
+    def __call__(self, features):
+        formula_strs = [f.pop("formula_str") for f in features]
+        for feature in features:
+            keys_to_del = [k for k, v in feature.items() if isinstance(v, str)]
+            for k in keys_to_del: del feature[k]
+        batch = super().__call__(features)
+        batch["formula_str"] = formula_strs
+        return batch
+
+class STLEncKernelTrainer(Trainer):
+    def __init__(self, stl_kernel, parse_fn, loss_params, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.stl_kernel = stl_kernel
+        self.parse_fn = parse_fn
+        self.loss_params = loss_params
+
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+        # 1. Recupero stringhe ed estrazione kernel STL on-the-fly
+        formula_strs = inputs.pop("formula_str")
+        if self.stl_kernel.signals.device != model.device:
+            self.stl_kernel.signals = self.stl_kernel.signals.to(model.device)
+             
+        with torch.no_grad():
+            phi_objs = [self.parse_fn(s) for s in formula_strs]
+            K_target = self.stl_kernel.compute_bag(phi_objs, return_robustness=True)[0]
+             
+        # 2. Forward del modello
+        outputs = model(**inputs)
+
+        # 3. Estrazione embedding rigorosa (Cattura SOLO il pooler/MLP)
+        if not hasattr(outputs, "pooler_output") or outputs.pooler_output is None:
+            raise ValueError(
+                "ERRORE CRITICO: Il modello non sta restituendo 'pooler_output'. "
+                "Il fallback è stato disabilitato intenzionalmente per garantire "
+                "che venga addestrato l'MLP. Verifica che il forward del modello "
+                "restituisca correttamente un BaseModelOutputWithPooling."
+            )
+        
+        emb = outputs.pooler_output
+
+        if emb.ndim == 1:
+            emb = emb.unsqueeze(0)
+
+        z = F.normalize(emb, p=2, dim=1)
+        S_model = torch.matmul(z, z.T)
+         
+        # 4. Calcolo della loss MSE pesata
+        with torch.no_grad():
+            error_diff = torch.abs(K_target - S_model.detach())
+            error_weight = torch.pow(error_diff, self.loss_params["error_pow"])
+            error_weight = torch.clamp(error_weight / (error_weight.mean() + 1e-8), max=self.loss_params["clamp_max"])
+
+        loss = (error_weight * (K_target - S_model)**2).mean()
+         
+        # 5. Logging corretto (valido sia per train che per eval)
+        is_eval = not model.training
+        if is_eval or (self.state.global_step % self.args.logging_steps == 0):
+            with torch.no_grad():
+                uniformity = torch.pdist(z, p=2).pow(2).mul(-2).exp().mean().log()
+                alignment_val = F.cosine_similarity(K_target.view(-1), S_model.view(-1), dim=0)
+                prefix = "eval" if is_eval else "train"
+                logs = {
+                    f"{prefix}_loss": loss.item(),
+                    f"{prefix}_kernel_alignment": alignment_val.item(),
+                    f"{prefix}_uniformity": uniformity.item(),
+                }
+                self.log(logs)
+                
+        return (loss, outputs) if return_outputs else loss
+
+    def prediction_step(self, model, inputs, prediction_loss_only, ignore_keys=None):
+        inputs = self._prepare_inputs(inputs)
+        with torch.no_grad():
+            # Il log avviene già correttamente dentro compute_loss
+            loss, outputs = self.compute_loss(model, inputs, return_outputs=True)
+            loss = loss.detach() if loss is not None else None
+            
+        if prediction_loss_only:
+            return (loss, None, None)
+            
+        logits = outputs.pooler_output if hasattr(outputs, "pooler_output") else outputs[0]
+        return (loss, logits, None)
+
+
+# ==========================================
+# 4. RUN FINALE
+# ==========================================
+def run_final_training():
+    final_params = {"error_pow": 2.0, "clamp_max": 10.0, "lr": 1e-5}
+
+    print("Inizializzazione training STL on-the-fly (Senza Cache)...")
+
+    wandb.init(project="stlenc-arch", name="cls-onthefly", config=final_params)
+
+    # Inizializzazione modello basata su AutoModel, come richiesto
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True, cache_dir=HF_CACHE)
+    model_config = AutoConfig.from_pretrained(MODEL_ID, trust_remote_code=True, cache_dir=HF_CACHE)
+    model = AutoModel.from_config(model_config, trust_remote_code=True)
+
+    ds = load_dataset("saracandu/stl_updated", cache_dir=HF_CACHE)
+
+    print(f"Tokenizzazione in corso con {num_cores} core...")
+    tokenized_ds = ds.map(
+        lambda x: {
+            **tokenizer(x["formula"], truncation=True, max_length=512, padding="max_length"),
+            "formula_str": x["formula"]
+        }, 
+        batched=True, 
+        num_proc=num_cores,
+        remove_columns=ds["train"].column_names
+    )
+
+    tokenized_ds.set_format(type="torch", columns=["input_ids", "attention_mask", "formula_str"], output_all_columns=True)
+    
+    # Inizializza il kernel per il calcolo on the fly
+    stl_kernel = StlKernel(measure=BaseMeasure(device=DEVICE), samples=SAMPLES_FOR_KERNEL, varn=VARN)
+     
+    training_args = TrainingArguments(
+        output_dir=os.path.join(BASE_DIR, "results"),
+        per_device_train_batch_size=128,
+        per_device_eval_batch_size=128,
+        gradient_accumulation_steps=4,  # RITMO ORIGINALE VELOCE (Global Batch = 512)
+        num_train_epochs=5,
+        learning_rate=final_params["lr"],
+        logging_steps=50,
+        eval_strategy="steps",
+        eval_steps=250,
+        report_to="wandb",
+        save_strategy="steps",
+        save_steps=250,
+        bf16=True, 
+        load_best_model_at_end=True,
+        metric_for_best_model="eval_loss",
+        push_to_hub=True,
+        hub_model_id=MODEL_ID,
+        hub_strategy="checkpoint",
+        remove_unused_columns=False
+    )
+
+    trainer = STLEncKernelTrainer(
+        model=model, 
+        args=training_args,
+        train_dataset=tokenized_ds["train"].shuffle(seed=42),
+        eval_dataset=tokenized_ds["test"].shuffle(seed=42).select(range(3000)),
+        stl_kernel=stl_kernel, 
+        parse_fn=from_string_to_formula,
+        data_collator=STLDataCollator(tokenizer=tokenizer),
+        loss_params=final_params
+    )
+     
+    trainer.train()
+    trainer.push_to_hub("training-arch-onthefly")
+    wandb.finish()
+
+if __name__ == "__main__":
+    run_final_training()

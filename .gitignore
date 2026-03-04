@@ -3,12 +3,14 @@ __pycache__/
 *.py[cod]
 python/
 =/
+wandb/
 
 # Training
 results/
 results-v2/
 results-v3/
 stlenc-training/
+results-speedup/
 final-model/
 pushed-model/
 wandb/
@@ -17,3 +19,10 @@ wandb/
 # Environments
 .venv/
 env/
+
+# Work-in-progress dirs
+wip/
+results-speedup/
+slurm_outputs/
+src/
+sh-files/

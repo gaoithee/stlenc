@@ -1,0 +1,30 @@
+---------------------------------------------
+SLURM job ID:        37784
+SLURM job node list: lovelace-01
+DATE:                Wed Feb  4 12:24:54 PM CET 2026
+---------------------------------------------
+
+CommandNotFoundError: Your shell has not been properly configured to use 'conda activate'.
+To initialize your shell, run
+
+    $ conda init <SHELL_NAME>
+
+Currently supported shells are:
+  - bash
+  - fish
+  - tcsh
+  - xonsh
+  - zsh
+  - powershell
+
+See 'conda init --help' for more information and options.
+
+IMPORTANT: You may need to close and restart your shell after running 'conda init'.
+
+
+Traceback (most recent call last):
+  File "/u/scandussio/stlenc/train_temp05.py", line 339, in <module>
+    run_final_training()
+  File "/u/scandussio/stlenc/train_temp05.py", line 290, in run_final_training
+    wandb.init(project="stlenc-tuning-temperature", name=run_name, config=final_params)
+AttributeError: module 'wandb' has no attribute 'init'

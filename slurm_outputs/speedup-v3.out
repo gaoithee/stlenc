@@ -1,0 +1,28 @@
+---------------------------------------------
+SLURM job ID:        40316
+SLURM job node list: lovelace-01
+DATE:                Tue Feb 24 07:46:33 PM CET 2026
+---------------------------------------------
+
+CommandNotFoundError: Your shell has not been properly configured to use 'conda activate'.
+To initialize your shell, run
+
+    $ conda init <SHELL_NAME>
+
+Currently supported shells are:
+  - bash
+  - fish
+  - tcsh
+  - xonsh
+  - zsh
+  - powershell
+
+See 'conda init --help' for more information and options.
+
+IMPORTANT: You may need to close and restart your shell after running 'conda init'.
+
+
+/u/scandussio/.conda/envs/.venv/lib/python3.11/site-packages/torch/nn/modules/transformer.py:515: UserWarning: The PyTorch API of nested tensors is in prototype stage and will change in the near future. We recommend specifying layout=torch.jagged when constructing a nested tensor, as this layout receives active development, has better operator coverage, and works with torch.compile. (Triggered internally at /pytorch/aten/src/ATen/NestedTensorImpl.cpp:178.)
+  output = torch._nested_tensor_from_mask(
+/var/spool/slurm/slurmd/job40316/slurm_script: line 32: 3571789 Killed                  python /u/scandussio/stlenc/speedup-v2.py
+slurmstepd: error: Detected 1 oom_kill event in StepId=40316.batch. Some of the step tasks have been OOM Killed.

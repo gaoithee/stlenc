@@ -1,0 +1,255 @@
+---------------------------------------------
+SLURM job ID:        40181
+SLURM job node list: lovelace-02
+DATE:                Sun Feb 22 07:55:26 PM CET 2026
+---------------------------------------------
+
+CommandNotFoundError: Your shell has not been properly configured to use 'conda activate'.
+To initialize your shell, run
+
+    $ conda init <SHELL_NAME>
+
+Currently supported shells are:
+  - bash
+  - fish
+  - tcsh
+  - xonsh
+  - zsh
+  - powershell
+
+See 'conda init --help' for more information and options.
+
+IMPORTANT: You may need to close and restart your shell after running 'conda init'.
+
+
+/u/scandussio/.conda/envs/.venv/lib/python3.11/site-packages/torch/nn/modules/transformer.py:515: UserWarning: The PyTorch API of nested tensors is in prototype stage and will change in the near future. We recommend specifying layout=torch.jagged when constructing a nested tensor, as this layout receives active development, has better operator coverage, and works with torch.compile. (Triggered internally at /pytorch/aten/src/ATen/NestedTensorImpl.cpp:178.)
+  output = torch._nested_tensor_from_mask(
+
+--- Loading test dataset ---
+[B=1000, N=500, batch=1] kernel=0.600s, transformer=7.978s, forward_only=7.911s, speedup=0.08x
+[B=1000, N=500, batch=8] kernel=0.600s, transformer=3.286s, forward_only=3.280s, speedup=0.18x
+[B=1000, N=500, batch=16] kernel=0.600s, transformer=3.051s, forward_only=3.049s, speedup=0.20x
+[B=1000, N=500, batch=32] kernel=0.600s, transformer=2.907s, forward_only=2.907s, speedup=0.21x
+[B=1000, N=500, batch=64] kernel=0.600s, transformer=2.844s, forward_only=2.845s, speedup=0.21x
+[B=1000, N=500, batch=128] kernel=0.600s, transformer=2.811s, forward_only=2.812s, speedup=0.21x
+[B=1000, N=500, batch=256] kernel=0.600s, transformer=2.833s, forward_only=2.834s, speedup=0.21x
+[B=1000, N=500, batch=512] kernel=0.600s, transformer=2.855s, forward_only=2.855s, speedup=0.21x
+[B=1000, N=500, batch=1024] kernel=0.600s, transformer=2.893s, forward_only=3.008s, speedup=0.21x
+[B=1000, N=1000, batch=1] kernel=0.501s, transformer=7.988s, forward_only=7.925s, speedup=0.06x
+[B=1000, N=1000, batch=8] kernel=0.501s, transformer=3.293s, forward_only=3.285s, speedup=0.15x
+[B=1000, N=1000, batch=16] kernel=0.501s, transformer=3.059s, forward_only=3.059s, speedup=0.16x
+[B=1000, N=1000, batch=32] kernel=0.501s, transformer=2.919s, forward_only=2.916s, speedup=0.17x
+[B=1000, N=1000, batch=64] kernel=0.501s, transformer=2.855s, forward_only=2.851s, speedup=0.18x
+[B=1000, N=1000, batch=128] kernel=0.501s, transformer=2.823s, forward_only=2.823s, speedup=0.18x
+[B=1000, N=1000, batch=256] kernel=0.501s, transformer=2.839s, forward_only=2.839s, speedup=0.18x
+[B=1000, N=1000, batch=512] kernel=0.501s, transformer=2.859s, forward_only=2.861s, speedup=0.18x
+[B=1000, N=1000, batch=1024] kernel=0.501s, transformer=2.900s, forward_only=2.902s, speedup=0.17x
+[B=1000, N=2000, batch=1] kernel=0.563s, transformer=7.967s, forward_only=7.914s, speedup=0.07x
+[B=1000, N=2000, batch=8] kernel=0.563s, transformer=3.291s, forward_only=3.283s, speedup=0.17x
+[B=1000, N=2000, batch=16] kernel=0.563s, transformer=3.060s, forward_only=3.059s, speedup=0.18x
+[B=1000, N=2000, batch=32] kernel=0.563s, transformer=2.920s, forward_only=2.918s, speedup=0.19x
+[B=1000, N=2000, batch=64] kernel=0.563s, transformer=2.857s, forward_only=2.856s, speedup=0.20x
+[B=1000, N=2000, batch=128] kernel=0.563s, transformer=2.824s, forward_only=2.822s, speedup=0.20x
+[B=1000, N=2000, batch=256] kernel=0.563s, transformer=2.838s, forward_only=2.838s, speedup=0.20x
+[B=1000, N=2000, batch=512] kernel=0.563s, transformer=2.854s, forward_only=2.858s, speedup=0.20x
+[B=1000, N=2000, batch=1024] kernel=0.563s, transformer=2.896s, forward_only=2.894s, speedup=0.19x
+[B=1000, N=3000, batch=1] kernel=0.618s, transformer=7.950s, forward_only=7.896s, speedup=0.08x
+[B=1000, N=3000, batch=8] kernel=0.618s, transformer=3.289s, forward_only=3.282s, speedup=0.19x
+[B=1000, N=3000, batch=16] kernel=0.618s, transformer=3.063s, forward_only=3.061s, speedup=0.20x
+[B=1000, N=3000, batch=32] kernel=0.618s, transformer=2.924s, forward_only=2.921s, speedup=0.21x
+[B=1000, N=3000, batch=64] kernel=0.618s, transformer=2.857s, forward_only=2.856s, speedup=0.22x
+[B=1000, N=3000, batch=128] kernel=0.618s, transformer=2.822s, forward_only=2.820s, speedup=0.22x
+[B=1000, N=3000, batch=256] kernel=0.618s, transformer=2.835s, forward_only=2.832s, speedup=0.22x
+[B=1000, N=3000, batch=512] kernel=0.618s, transformer=2.857s, forward_only=2.852s, speedup=0.22x
+[B=1000, N=3000, batch=1024] kernel=0.618s, transformer=2.892s, forward_only=2.894s, speedup=0.21x
+[B=1000, N=4000, batch=1] kernel=0.728s, transformer=7.956s, forward_only=7.898s, speedup=0.09x
+[B=1000, N=4000, batch=8] kernel=0.728s, transformer=3.289s, forward_only=3.281s, speedup=0.22x
+[B=1000, N=4000, batch=16] kernel=0.728s, transformer=3.060s, forward_only=3.060s, speedup=0.24x
+[B=1000, N=4000, batch=32] kernel=0.728s, transformer=2.921s, forward_only=2.919s, speedup=0.25x
+[B=1000, N=4000, batch=64] kernel=0.728s, transformer=2.858s, forward_only=2.859s, speedup=0.25x
+[B=1000, N=4000, batch=128] kernel=0.728s, transformer=2.824s, forward_only=2.821s, speedup=0.26x
+[B=1000, N=4000, batch=256] kernel=0.728s, transformer=2.840s, forward_only=2.839s, speedup=0.26x
+[B=1000, N=4000, batch=512] kernel=0.728s, transformer=2.859s, forward_only=2.859s, speedup=0.25x
+[B=1000, N=4000, batch=1024] kernel=0.728s, transformer=2.895s, forward_only=2.898s, speedup=0.25x
+[B=2000, N=500, batch=1] kernel=0.810s, transformer=15.973s, forward_only=15.853s, speedup=0.05x
+[B=2000, N=500, batch=8] kernel=0.810s, transformer=6.700s, forward_only=6.692s, speedup=0.12x
+[B=2000, N=500, batch=16] kernel=0.810s, transformer=6.240s, forward_only=6.235s, speedup=0.13x
+[B=2000, N=500, batch=32] kernel=0.810s, transformer=5.980s, forward_only=5.977s, speedup=0.14x
+[B=2000, N=500, batch=64] kernel=0.810s, transformer=5.835s, forward_only=5.829s, speedup=0.14x
+[B=2000, N=500, batch=128] kernel=0.810s, transformer=5.779s, forward_only=5.778s, speedup=0.14x
+[B=2000, N=500, batch=256] kernel=0.810s, transformer=5.783s, forward_only=5.784s, speedup=0.14x
+[B=2000, N=500, batch=512] kernel=0.810s, transformer=5.804s, forward_only=5.803s, speedup=0.14x
+[B=2000, N=500, batch=1024] kernel=0.810s, transformer=5.844s, forward_only=5.849s, speedup=0.14x
+[B=2000, N=1000, batch=1] kernel=0.983s, transformer=15.985s, forward_only=15.875s, speedup=0.06x
+[B=2000, N=1000, batch=8] kernel=0.983s, transformer=6.706s, forward_only=6.692s, speedup=0.15x
+[B=2000, N=1000, batch=16] kernel=0.983s, transformer=6.246s, forward_only=6.242s, speedup=0.16x
+[B=2000, N=1000, batch=32] kernel=0.983s, transformer=5.987s, forward_only=5.989s, speedup=0.16x
+[B=2000, N=1000, batch=64] kernel=0.983s, transformer=5.855s, forward_only=5.872s, speedup=0.17x
+[B=2000, N=1000, batch=128] kernel=0.983s, transformer=5.818s, forward_only=5.834s, speedup=0.17x
+[B=2000, N=1000, batch=256] kernel=0.983s, transformer=5.826s, forward_only=5.823s, speedup=0.17x
+[B=2000, N=1000, batch=512] kernel=0.983s, transformer=5.836s, forward_only=5.834s, speedup=0.17x
+[B=2000, N=1000, batch=1024] kernel=0.983s, transformer=5.867s, forward_only=5.886s, speedup=0.17x
+[B=2000, N=2000, batch=1] kernel=1.095s, transformer=16.059s, forward_only=15.972s, speedup=0.07x
+[B=2000, N=2000, batch=8] kernel=1.095s, transformer=6.721s, forward_only=6.713s, speedup=0.16x
+[B=2000, N=2000, batch=16] kernel=1.095s, transformer=6.263s, forward_only=6.260s, speedup=0.17x
+[B=2000, N=2000, batch=32] kernel=1.095s, transformer=6.003s, forward_only=5.998s, speedup=0.18x
+[B=2000, N=2000, batch=64] kernel=1.095s, transformer=5.857s, forward_only=5.855s, speedup=0.19x
+[B=2000, N=2000, batch=128] kernel=1.095s, transformer=5.806s, forward_only=5.803s, speedup=0.19x
+[B=2000, N=2000, batch=256] kernel=1.095s, transformer=5.888s, forward_only=5.825s, speedup=0.19x
+[B=2000, N=2000, batch=512] kernel=1.095s, transformer=5.854s, forward_only=5.849s, speedup=0.19x
+[B=2000, N=2000, batch=1024] kernel=1.095s, transformer=5.889s, forward_only=5.890s, speedup=0.19x
+[B=2000, N=3000, batch=1] kernel=1.196s, transformer=16.130s, forward_only=15.990s, speedup=0.07x
+[B=2000, N=3000, batch=8] kernel=1.196s, transformer=6.735s, forward_only=6.722s, speedup=0.18x
+[B=2000, N=3000, batch=16] kernel=1.196s, transformer=6.278s, forward_only=6.268s, speedup=0.19x
+[B=2000, N=3000, batch=32] kernel=1.196s, transformer=6.034s, forward_only=6.015s, speedup=0.20x
+[B=2000, N=3000, batch=64] kernel=1.196s, transformer=5.873s, forward_only=5.874s, speedup=0.20x
+[B=2000, N=3000, batch=128] kernel=1.196s, transformer=5.824s, forward_only=5.820s, speedup=0.21x
+[B=2000, N=3000, batch=256] kernel=1.196s, transformer=5.816s, forward_only=5.817s, speedup=0.21x
+[B=2000, N=3000, batch=512] kernel=1.196s, transformer=5.834s, forward_only=5.839s, speedup=0.21x
+[B=2000, N=3000, batch=1024] kernel=1.196s, transformer=5.874s, forward_only=5.887s, speedup=0.20x
+[B=2000, N=4000, batch=1] kernel=1.404s, transformer=16.084s, forward_only=15.973s, speedup=0.09x
+[B=2000, N=4000, batch=8] kernel=1.404s, transformer=6.739s, forward_only=6.731s, speedup=0.21x
+[B=2000, N=4000, batch=16] kernel=1.404s, transformer=6.279s, forward_only=6.273s, speedup=0.22x
+[B=2000, N=4000, batch=32] kernel=1.404s, transformer=6.009s, forward_only=6.004s, speedup=0.23x
+[B=2000, N=4000, batch=64] kernel=1.404s, transformer=5.866s, forward_only=5.867s, speedup=0.24x
+[B=2000, N=4000, batch=128] kernel=1.404s, transformer=5.812s, forward_only=5.813s, speedup=0.24x
+[B=2000, N=4000, batch=256] kernel=1.404s, transformer=5.812s, forward_only=5.812s, speedup=0.24x
+[B=2000, N=4000, batch=512] kernel=1.404s, transformer=5.844s, forward_only=5.905s, speedup=0.24x
+[B=2000, N=4000, batch=1024] kernel=1.404s, transformer=5.880s, forward_only=5.881s, speedup=0.24x
+[B=3000, N=500, batch=1] kernel=1.270s, transformer=24.357s, forward_only=24.152s, speedup=0.05x
+[B=3000, N=500, batch=8] kernel=1.270s, transformer=10.464s, forward_only=10.450s, speedup=0.12x
+[B=3000, N=500, batch=16] kernel=1.270s, transformer=9.801s, forward_only=9.795s, speedup=0.13x
+[B=3000, N=500, batch=32] kernel=1.270s, transformer=9.365s, forward_only=9.359s, speedup=0.14x
+[B=3000, N=500, batch=64] kernel=1.270s, transformer=9.153s, forward_only=9.146s, speedup=0.14x
+[B=3000, N=500, batch=128] kernel=1.270s, transformer=9.086s, forward_only=9.082s, speedup=0.14x
+[B=3000, N=500, batch=256] kernel=1.270s, transformer=9.100s, forward_only=9.097s, speedup=0.14x
+[B=3000, N=500, batch=512] kernel=1.270s, transformer=9.163s, forward_only=9.164s, speedup=0.14x
+[B=3000, N=500, batch=1024] kernel=1.270s, transformer=9.304s, forward_only=9.225s, speedup=0.14x
+[B=3000, N=1000, batch=1] kernel=1.560s, transformer=24.258s, forward_only=24.091s, speedup=0.06x
+[B=3000, N=1000, batch=8] kernel=1.560s, transformer=10.464s, forward_only=10.450s, speedup=0.15x
+[B=3000, N=1000, batch=16] kernel=1.560s, transformer=9.800s, forward_only=9.786s, speedup=0.16x
+[B=3000, N=1000, batch=32] kernel=1.560s, transformer=9.362s, forward_only=9.360s, speedup=0.17x
+[B=3000, N=1000, batch=64] kernel=1.560s, transformer=9.146s, forward_only=9.146s, speedup=0.17x
+[B=3000, N=1000, batch=128] kernel=1.560s, transformer=9.076s, forward_only=9.082s, speedup=0.17x
+[B=3000, N=1000, batch=256] kernel=1.560s, transformer=9.097s, forward_only=9.094s, speedup=0.17x
+[B=3000, N=1000, batch=512] kernel=1.560s, transformer=9.154s, forward_only=9.145s, speedup=0.17x
+[B=3000, N=1000, batch=1024] kernel=1.560s, transformer=9.216s, forward_only=9.225s, speedup=0.17x
+[B=3000, N=2000, batch=1] kernel=1.738s, transformer=24.258s, forward_only=24.098s, speedup=0.07x
+[B=3000, N=2000, batch=8] kernel=1.738s, transformer=10.462s, forward_only=10.453s, speedup=0.17x
+[B=3000, N=2000, batch=16] kernel=1.738s, transformer=9.805s, forward_only=9.790s, speedup=0.18x
+[B=3000, N=2000, batch=32] kernel=1.738s, transformer=9.377s, forward_only=9.368s, speedup=0.19x
+[B=3000, N=2000, batch=64] kernel=1.738s, transformer=9.147s, forward_only=9.145s, speedup=0.19x
+[B=3000, N=2000, batch=128] kernel=1.738s, transformer=9.074s, forward_only=9.074s, speedup=0.19x
+[B=3000, N=2000, batch=256] kernel=1.738s, transformer=9.087s, forward_only=9.088s, speedup=0.19x
+[B=3000, N=2000, batch=512] kernel=1.738s, transformer=9.150s, forward_only=9.143s, speedup=0.19x
+[B=3000, N=2000, batch=1024] kernel=1.738s, transformer=9.221s, forward_only=9.234s, speedup=0.19x
+[B=3000, N=3000, batch=1] kernel=1.904s, transformer=24.251s, forward_only=24.086s, speedup=0.08x
+[B=3000, N=3000, batch=8] kernel=1.904s, transformer=10.453s, forward_only=10.438s, speedup=0.18x
+[B=3000, N=3000, batch=16] kernel=1.904s, transformer=9.793s, forward_only=9.783s, speedup=0.19x
+[B=3000, N=3000, batch=32] kernel=1.904s, transformer=9.357s, forward_only=9.350s, speedup=0.20x
+[B=3000, N=3000, batch=64] kernel=1.904s, transformer=9.140s, forward_only=9.139s, speedup=0.21x
+[B=3000, N=3000, batch=128] kernel=1.904s, transformer=9.072s, forward_only=9.069s, speedup=0.21x
+[B=3000, N=3000, batch=256] kernel=1.904s, transformer=9.085s, forward_only=9.083s, speedup=0.21x
+[B=3000, N=3000, batch=512] kernel=1.904s, transformer=9.145s, forward_only=9.146s, speedup=0.21x
+[B=3000, N=3000, batch=1024] kernel=1.904s, transformer=9.280s, forward_only=9.223s, speedup=0.21x
+[B=3000, N=4000, batch=1] kernel=2.236s, transformer=24.256s, forward_only=24.091s, speedup=0.09x
+[B=3000, N=4000, batch=8] kernel=2.236s, transformer=10.458s, forward_only=10.444s, speedup=0.21x
+[B=3000, N=4000, batch=16] kernel=2.236s, transformer=9.787s, forward_only=9.781s, speedup=0.23x
+[B=3000, N=4000, batch=32] kernel=2.236s, transformer=9.366s, forward_only=9.355s, speedup=0.24x
+[B=3000, N=4000, batch=64] kernel=2.236s, transformer=9.179s, forward_only=9.188s, speedup=0.24x
+[B=3000, N=4000, batch=128] kernel=2.236s, transformer=9.117s, forward_only=9.104s, speedup=0.25x
+[B=3000, N=4000, batch=256] kernel=2.236s, transformer=9.120s, forward_only=9.118s, speedup=0.25x
+[B=3000, N=4000, batch=512] kernel=2.236s, transformer=9.168s, forward_only=9.139s, speedup=0.24x
+[B=3000, N=4000, batch=1024] kernel=2.236s, transformer=9.216s, forward_only=9.223s, speedup=0.24x
+[B=4000, N=500, batch=1] kernel=1.692s, transformer=32.289s, forward_only=32.068s, speedup=0.05x
+[B=4000, N=500, batch=8] kernel=1.692s, transformer=13.922s, forward_only=13.902s, speedup=0.12x
+[B=4000, N=500, batch=16] kernel=1.692s, transformer=13.029s, forward_only=13.013s, speedup=0.13x
+[B=4000, N=500, batch=32] kernel=1.692s, transformer=12.478s, forward_only=12.470s, speedup=0.14x
+[B=4000, N=500, batch=64] kernel=1.692s, transformer=12.177s, forward_only=12.168s, speedup=0.14x
+[B=4000, N=500, batch=128] kernel=1.692s, transformer=12.073s, forward_only=12.075s, speedup=0.14x
+[B=4000, N=500, batch=256] kernel=1.692s, transformer=12.104s, forward_only=12.108s, speedup=0.14x
+[B=4000, N=500, batch=512] kernel=1.692s, transformer=12.189s, forward_only=12.198s, speedup=0.14x
+[B=4000, N=500, batch=1024] kernel=1.692s, transformer=12.268s, forward_only=12.270s, speedup=0.14x
+[B=4000, N=1000, batch=1] kernel=2.248s, transformer=32.294s, forward_only=32.074s, speedup=0.07x
+[B=4000, N=1000, batch=8] kernel=2.248s, transformer=13.919s, forward_only=13.907s, speedup=0.16x
+[B=4000, N=1000, batch=16] kernel=2.248s, transformer=13.045s, forward_only=13.026s, speedup=0.17x
+[B=4000, N=1000, batch=32] kernel=2.248s, transformer=12.480s, forward_only=12.475s, speedup=0.18x
+[B=4000, N=1000, batch=64] kernel=2.248s, transformer=12.179s, forward_only=12.180s, speedup=0.18x
+[B=4000, N=1000, batch=128] kernel=2.248s, transformer=12.089s, forward_only=12.100s, speedup=0.19x
+[B=4000, N=1000, batch=256] kernel=2.248s, transformer=12.127s, forward_only=12.134s, speedup=0.19x
+[B=4000, N=1000, batch=512] kernel=2.248s, transformer=12.195s, forward_only=12.199s, speedup=0.18x
+[B=4000, N=1000, batch=1024] kernel=2.248s, transformer=12.261s, forward_only=12.268s, speedup=0.18x
+[B=4000, N=2000, batch=1] kernel=2.313s, transformer=32.304s, forward_only=32.082s, speedup=0.07x
+[B=4000, N=2000, batch=8] kernel=2.313s, transformer=13.929s, forward_only=13.912s, speedup=0.17x
+[B=4000, N=2000, batch=16] kernel=2.313s, transformer=13.037s, forward_only=13.018s, speedup=0.18x
+[B=4000, N=2000, batch=32] kernel=2.313s, transformer=12.482s, forward_only=12.478s, speedup=0.19x
+[B=4000, N=2000, batch=64] kernel=2.313s, transformer=12.190s, forward_only=12.184s, speedup=0.19x
+[B=4000, N=2000, batch=128] kernel=2.313s, transformer=12.088s, forward_only=12.094s, speedup=0.19x
+[B=4000, N=2000, batch=256] kernel=2.313s, transformer=12.123s, forward_only=12.121s, speedup=0.19x
+[B=4000, N=2000, batch=512] kernel=2.313s, transformer=12.242s, forward_only=12.178s, speedup=0.19x
+[B=4000, N=2000, batch=1024] kernel=2.313s, transformer=12.265s, forward_only=12.260s, speedup=0.19x
+[B=4000, N=3000, batch=1] kernel=2.530s, transformer=32.296s, forward_only=32.067s, speedup=0.08x
+[B=4000, N=3000, batch=8] kernel=2.530s, transformer=13.921s, forward_only=13.892s, speedup=0.18x
+[B=4000, N=3000, batch=16] kernel=2.530s, transformer=13.008s, forward_only=12.996s, speedup=0.19x
+[B=4000, N=3000, batch=32] kernel=2.530s, transformer=12.455s, forward_only=12.447s, speedup=0.20x
+[B=4000, N=3000, batch=64] kernel=2.530s, transformer=12.170s, forward_only=12.168s, speedup=0.21x
+[B=4000, N=3000, batch=128] kernel=2.530s, transformer=12.079s, forward_only=12.069s, speedup=0.21x
+[B=4000, N=3000, batch=256] kernel=2.530s, transformer=12.101s, forward_only=12.097s, speedup=0.21x
+[B=4000, N=3000, batch=512] kernel=2.530s, transformer=12.178s, forward_only=12.247s, speedup=0.21x
+[B=4000, N=3000, batch=1024] kernel=2.530s, transformer=12.255s, forward_only=12.253s, speedup=0.21x
+[B=4000, N=4000, batch=1] kernel=2.974s, transformer=32.301s, forward_only=32.075s, speedup=0.09x
+[B=4000, N=4000, batch=8] kernel=2.974s, transformer=13.901s, forward_only=13.883s, speedup=0.21x
+[B=4000, N=4000, batch=16] kernel=2.974s, transformer=13.007s, forward_only=13.011s, speedup=0.23x
+[B=4000, N=4000, batch=32] kernel=2.974s, transformer=12.471s, forward_only=12.470s, speedup=0.24x
+[B=4000, N=4000, batch=64] kernel=2.974s, transformer=12.171s, forward_only=12.174s, speedup=0.24x
+[B=4000, N=4000, batch=128] kernel=2.974s, transformer=12.082s, forward_only=12.077s, speedup=0.25x
+[B=4000, N=4000, batch=256] kernel=2.974s, transformer=12.107s, forward_only=12.117s, speedup=0.25x
+[B=4000, N=4000, batch=512] kernel=2.974s, transformer=12.188s, forward_only=12.196s, speedup=0.24x
+[B=4000, N=4000, batch=1024] kernel=2.974s, transformer=12.313s, forward_only=12.246s, speedup=0.24x
+[B=5000, N=500, batch=1] kernel=2.120s, transformer=40.477s, forward_only=40.185s, speedup=0.05x
+[B=5000, N=500, batch=8] kernel=2.120s, transformer=17.566s, forward_only=17.537s, speedup=0.12x
+[B=5000, N=500, batch=16] kernel=2.120s, transformer=16.461s, forward_only=16.448s, speedup=0.13x
+[B=5000, N=500, batch=32] kernel=2.120s, transformer=15.759s, forward_only=15.753s, speedup=0.13x
+[B=5000, N=500, batch=64] kernel=2.120s, transformer=15.370s, forward_only=15.375s, speedup=0.14x
+[B=5000, N=500, batch=128] kernel=2.120s, transformer=15.272s, forward_only=15.290s, speedup=0.14x
+[B=5000, N=500, batch=256] kernel=2.120s, transformer=15.331s, forward_only=15.330s, speedup=0.14x
+[B=5000, N=500, batch=512] kernel=2.120s, transformer=15.496s, forward_only=15.427s, speedup=0.14x
+[B=5000, N=500, batch=1024] kernel=2.120s, transformer=15.527s, forward_only=15.537s, speedup=0.14x
+[B=5000, N=1000, batch=1] kernel=2.603s, transformer=40.478s, forward_only=40.209s, speedup=0.06x
+[B=5000, N=1000, batch=8] kernel=2.603s, transformer=17.584s, forward_only=17.563s, speedup=0.15x
+[B=5000, N=1000, batch=16] kernel=2.603s, transformer=16.489s, forward_only=16.469s, speedup=0.16x
+[B=5000, N=1000, batch=32] kernel=2.603s, transformer=15.774s, forward_only=15.755s, speedup=0.17x
+[B=5000, N=1000, batch=64] kernel=2.603s, transformer=15.365s, forward_only=15.358s, speedup=0.17x
+[B=5000, N=1000, batch=128] kernel=2.603s, transformer=15.295s, forward_only=15.296s, speedup=0.17x
+[B=5000, N=1000, batch=256] kernel=2.603s, transformer=15.324s, forward_only=15.393s, speedup=0.17x
+[B=5000, N=1000, batch=512] kernel=2.603s, transformer=15.437s, forward_only=15.426s, speedup=0.17x
+[B=5000, N=1000, batch=1024] kernel=2.603s, transformer=15.518s, forward_only=15.532s, speedup=0.17x
+[B=5000, N=2000, batch=1] kernel=2.901s, transformer=40.486s, forward_only=40.200s, speedup=0.07x
+[B=5000, N=2000, batch=8] kernel=2.901s, transformer=17.571s, forward_only=17.545s, speedup=0.17x
+[B=5000, N=2000, batch=16] kernel=2.901s, transformer=16.482s, forward_only=16.461s, speedup=0.18x
+[B=5000, N=2000, batch=32] kernel=2.901s, transformer=15.765s, forward_only=15.757s, speedup=0.18x
+[B=5000, N=2000, batch=64] kernel=2.901s, transformer=15.400s, forward_only=15.396s, speedup=0.19x
+[B=5000, N=2000, batch=128] kernel=2.901s, transformer=15.280s, forward_only=15.266s, speedup=0.19x
+[B=5000, N=2000, batch=256] kernel=2.901s, transformer=15.377s, forward_only=15.301s, speedup=0.19x
+[B=5000, N=2000, batch=512] kernel=2.901s, transformer=15.423s, forward_only=15.421s, speedup=0.19x
+[B=5000, N=2000, batch=1024] kernel=2.901s, transformer=15.498s, forward_only=15.578s, speedup=0.19x
+[B=5000, N=3000, batch=1] kernel=3.175s, transformer=40.456s, forward_only=40.171s, speedup=0.08x
+[B=5000, N=3000, batch=8] kernel=3.175s, transformer=17.563s, forward_only=17.544s, speedup=0.18x
+[B=5000, N=3000, batch=16] kernel=3.175s, transformer=16.443s, forward_only=16.423s, speedup=0.19x
+[B=5000, N=3000, batch=32] kernel=3.175s, transformer=15.747s, forward_only=15.738s, speedup=0.20x
+[B=5000, N=3000, batch=64] kernel=3.175s, transformer=15.336s, forward_only=15.363s, speedup=0.21x
+[B=5000, N=3000, batch=128] kernel=3.175s, transformer=15.256s, forward_only=15.255s, speedup=0.21x
+[B=5000, N=3000, batch=256] kernel=3.175s, transformer=15.301s, forward_only=15.304s, speedup=0.21x
+[B=5000, N=3000, batch=512] kernel=3.175s, transformer=15.432s, forward_only=15.421s, speedup=0.21x
+[B=5000, N=3000, batch=1024] kernel=3.175s, transformer=15.498s, forward_only=15.510s, speedup=0.20x
+[B=5000, N=4000, batch=1] kernel=3.917s, transformer=40.466s, forward_only=40.185s, speedup=0.10x
+[B=5000, N=4000, batch=8] kernel=3.917s, transformer=17.554s, forward_only=17.537s, speedup=0.22x
+[B=5000, N=4000, batch=16] kernel=3.917s, transformer=16.460s, forward_only=16.441s, speedup=0.24x
+[B=5000, N=4000, batch=32] kernel=3.917s, transformer=15.749s, forward_only=15.738s, speedup=0.25x
+[B=5000, N=4000, batch=64] kernel=3.917s, transformer=15.359s, forward_only=15.361s, speedup=0.26x
+[B=5000, N=4000, batch=128] kernel=3.917s, transformer=15.274s, forward_only=15.274s, speedup=0.26x
+[B=5000, N=4000, batch=256] kernel=3.917s, transformer=15.333s, forward_only=15.334s, speedup=0.26x
+[B=5000, N=4000, batch=512] kernel=3.917s, transformer=15.455s, forward_only=15.439s, speedup=0.25x
+[B=5000, N=4000, batch=1024] kernel=3.917s, transformer=15.514s, forward_only=15.561s, speedup=0.25x
+
+Results saved to ./results_speedup/speedup_full_vs_forward.csv
